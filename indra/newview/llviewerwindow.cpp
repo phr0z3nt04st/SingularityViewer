@@ -105,6 +105,7 @@
 #include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
+#include "llfloaterinventory.h"
 #include "llfloaternamedesc.h"
 #include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
@@ -121,7 +122,6 @@
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimageworker.h"
-#include "llinventoryview.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
@@ -2771,8 +2771,12 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::moveCursorToCenter()
 {
-		S32 x = getWorldViewWidthScaled() / 2;
-		S32 y = getWorldViewHeightScaled() / 2;
+	if (gSavedSettings.getBOOL("SGAbsolutePointer")) {
+		return;
+	}
+
+	S32 x = getWorldViewWidthScaled() / 2;
+	S32 y = getWorldViewHeightScaled() / 2;
 	
 	//on a forced move, all deltas get zeroed out to prevent jumping
 	mCurrentMousePoint.set(x,y);

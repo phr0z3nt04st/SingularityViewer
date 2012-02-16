@@ -35,8 +35,8 @@
 #include "llaudioengine.h"
 #include "llagent.h"          // gAgent
 #include "llbutton.h"
+#include "llfloaterinventory.h"
 #include "llinventory.h"
-#include "llinventoryview.h"
 #include "lllineeditor.h"
 #include "llpreviewsound.h"
 #include "llresmgr.h"
@@ -78,6 +78,13 @@ LLPreviewSound::LLPreviewSound(const std::string& name, const LLRect& rect, cons
 	button->setSoundFlags(LLView::SILENT);
 
 	const LLInventoryItem* item = getItem();
+
+	mIsCopyable = false;
+	if(item)
+	{
+		const LLPermissions& perm = item->getPermissions();
+		mIsCopyable = (perm.getCreator() == gAgent.getID());
+	}
 	
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	childSetText("desc", item->getDescription());
@@ -293,7 +300,7 @@ void LLPreviewSound::copyUUID( void *userdata )
 // virtual
 BOOL LLPreviewSound::canSaveAs() const
 {
-	return TRUE;
+	return mIsCopyable;
 }
 
 // virtual

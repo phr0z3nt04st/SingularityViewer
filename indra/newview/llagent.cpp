@@ -43,10 +43,10 @@
 #include "llanimationstates.h"
 #include "llcallingcard.h"
 #include "llconsole.h"
+#include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatertools.h"
-
 #include "llgroupmgr.h"
 #include "llhomelocationresponder.h"
 #include "llhudmanager.h"
@@ -645,6 +645,8 @@ void LLAgent::toggleTPosed()
 //-----------------------------------------------------------------------------
 void LLAgent::setRegion(LLViewerRegion *regionp)
 {
+	bool teleport = true;
+
 	llassert(regionp);
 	if (mRegionp != regionp)
 	{
@@ -682,6 +684,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 				gSky.mVOGroundp->setRegion(regionp);
 			}
 
+			// Notify windlight managers
+			teleport = (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE);
 		}
 		else
 		{
@@ -713,6 +717,15 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	mRegionsVisited.insert(handle);
 
 	LLSelectMgr::getInstance()->updateSelectionCenter();
+
+	if (teleport)
+	{
+		LLEnvManagerNew::instance().onTeleport();
+	}
+	else
+	{
+		LLEnvManagerNew::instance().onRegionCrossing();
+	}
 }
 
 
@@ -1216,8 +1229,7 @@ void LLAgent::setAFK()
 		gAwayTimer.start();
 		if (gAFKMenu)
 		{
-			// *TODO:Translate
-			gAFKMenu->setLabel(std::string("Set Not Away"));
+			gAFKMenu->setLabel(LLTrans::getString("AvatarSetNotAway"));
 		}
 	}
 }
@@ -1242,8 +1254,7 @@ void LLAgent::clearAFK()
 		LL_INFOS("AFK") << "Clearing Away" << LL_ENDL;
 		if (gAFKMenu)
 		{
-			// *TODO:Translate
-			gAFKMenu->setLabel(std::string("Set Away"));
+			gAFKMenu->setLabel(LLTrans::getString("AvatarSetAway"));
 		}
 	}
 }
@@ -1265,8 +1276,7 @@ void LLAgent::setBusy()
 	mIsBusy = TRUE;
 	if (gBusyMenu)
 	{
-		// *TODO:Translate
-		gBusyMenu->setLabel(std::string("Set Not Busy"));
+		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
 	LLFloaterMute::getInstance()->updateButtons();
 }
@@ -1280,8 +1290,7 @@ void LLAgent::clearBusy()
 	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_STOP);
 	if (gBusyMenu)
 	{
-		// *TODO:Translate
-		gBusyMenu->setLabel(std::string("Set Busy"));
+		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
 	LLFloaterMute::getInstance()->updateButtons();
 }
@@ -3975,7 +3984,10 @@ void LLAgent::sendAgentSetAppearance()
 		}
 	}
 
-//	llinfos << "Avatar XML num VisualParams transmitted = " << transmitted_params << llendl;
+	llinfos << "Avatar XML num VisualParams transmitted = " << transmitted_params << llendl;
+	if(transmitted_params < 218) {
+		LLNotificationsUtil::add("SGIncompleteAppearence");
+	}
 	sendReliableMessage();
 }
 

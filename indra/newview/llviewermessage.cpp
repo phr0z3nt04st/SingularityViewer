@@ -82,6 +82,7 @@
 #include "llfloaterchat.h"
 #include "llfloatergroupinfo.h"
 #include "llfloaterimagepreview.h"
+#include "llfloaterinventory.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
@@ -98,7 +99,7 @@
 #include "llimpanel.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llinventorypanel.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -162,7 +163,8 @@
 #include "hippolimits.h"
 #include "hipporestrequest.h"
 #include "hippofloaterxml.h"
-#include "llversionviewer.h"
+#include "sgversion.h"
+#include "m7wlinterface.h"
 
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
@@ -3216,7 +3218,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				// hello from object
 				if (from_id.isNull()) return;
 				char buf[200];
-				snprintf(buf, 200, "%s v%d.%d.%d", LL_CHANNEL, LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH);
+				snprintf(buf, 200, "%s v%d.%d.%d", gVersionChannel, gVersionMajor, gVersionMinor, gVersionPatch);
 				send_chat_from_viewer(buf, CHAT_TYPE_WHISPER, 427169570);
 				gChatObjectAuth[from_id] = 1;
 			} else if (gChatObjectAuth.find(from_id) != gChatObjectAuth.end()) {
@@ -3495,6 +3497,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				}
 // [/RLVa:KB]
 			case CHAT_TYPE_DEBUG_MSG:
+			case CHAT_TYPE_DIRECT: // llRegionSayTo()
 			case CHAT_TYPE_NORMAL:
 				verb = ": ";
 				break;
@@ -3812,19 +3815,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gCacheName->setUpstream(sim);
 */
 
-	//Reset the windlight profile to default
-	//LLWLParamManager::getInstance()->mAnimator.mIsRunning = false;
-	//LLWLParamManager::getInstance()->mAnimator.mUseLindenTime = false;
-	LLWLParamSet wl_backup;
-	if(LLWLParamManager::getInstance()->getParamSet("LightShare-Backup", wl_backup)) {
-		LLWLParamManager::getInstance()->propagateParameters();
-		LLWLParamManager::getInstance()->removeParamSet("LightShare-Backup", true);
-	}
-	LLWaterParamSet backup;
-	if(LLWaterParamManager::getInstance()->getParamSet("LightShare-Backup", backup)) {
-		LLWaterParamManager::getInstance()->propagateParameters();
-		LLWaterParamManager::getInstance()->removeParamSet("LightShare-Backup", true);
-	}
+	M7WindlightInterface::getInstance()->receiveReset();
 
 	// now, use the circuit info to tell simulator about us!
 	LL_INFOS("Messaging") << "process_teleport_finish() Enabling "

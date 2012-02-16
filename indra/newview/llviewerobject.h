@@ -39,7 +39,7 @@
 #include "llhudtext.h"
 #include "llhudicon.h"
 #include "llinventory.h"
-#include "llmemory.h"
+#include "llrefcount.h"
 #include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
@@ -49,6 +49,7 @@
 #include "v3dmath.h"
 #include "v3math.h"
 #include "llvertexbuffer.h"
+#include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -675,8 +676,9 @@ protected:
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;
-
+public://Jay: IDGAF
 	LLPointer<LLViewerPartSourceScript>		mPartSourcep;	// Particle source associated with this object.
+protected:
 	LLAudioSourceVO* mAudioSourcep;
 	F32				mAudioGain;
 	

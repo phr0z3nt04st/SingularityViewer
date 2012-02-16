@@ -76,6 +76,7 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
+    sgversion.cpp
     llviewerobjectbackup.cpp
     slfloatermediafilter.cpp
     floaterlocalassetbrowse.cpp
@@ -85,7 +86,11 @@ set(viewer_SOURCE_FILES
     floaterao.cpp
     floatervoicelicense.cpp
     cofmgr.cpp
-    ascentdaycyclemanager.cpp
+    lldaycyclemanager.cpp
+    llenvmanager.cpp
+    llwlhandlers.cpp
+    llregioninfomodel.cpp
+    m7wlinterface.cpp
     ascentfloatercontactgroups.cpp
     ascentkeyword.cpp
     ascentprefschat.cpp
@@ -124,6 +129,7 @@ set(viewer_SOURCE_FILES
     llassetuploadqueue.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
+    llavatarpropertiesprocessor.cpp
     llbox.cpp
     llbuildnewviewsscheduler.cpp
     llcallbacklist.cpp
@@ -300,7 +306,7 @@ set(viewer_SOURCE_FILES
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
-    llinventoryview.cpp
+    llinventorypanel.cpp
     lljoystickbutton.cpp
     lllandmarklist.cpp
     lllocalinventory.cpp
@@ -359,6 +365,7 @@ set(viewer_SOURCE_FILES
     llpanellandobjects.cpp
     llpanellandoptions.cpp
     llpanellogin.cpp
+    llpanelmaininventory.cpp
     llpanelmorph.cpp
     llpanelmediahud.cpp
     llpanelmsgs.cpp
@@ -557,6 +564,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
 
+    sgversion.h
     llviewerobjectbackup.h
     slfloatermediafilter.h
     floaterlocalassetbrowse.h
@@ -564,7 +572,11 @@ set(viewer_HEADER_FILES
     floaterao.h
     floatervoicelicense.h
     cofmgr.h
-    ascentdaycyclemanager.h
+    lldaycyclemanager.h
+    llenvmanager.h
+    llwlhandlers.h
+    llregioninfomodel.h
+    m7wlinterface.h
     ascentfloatercontactgroups.h
     ascentkeyword.h
     ascentprefschat.h
@@ -604,6 +616,7 @@ set(viewer_HEADER_FILES
     llassetuploadqueue.h
     llattachmentsmgr.h
     llaudiosourcevo.h
+    llavatarpropertiesprocessor.h
     llbox.h
     llbuildnewviewsscheduler.h
     llcallbacklist.h
@@ -780,7 +793,7 @@ set(viewer_HEADER_FILES
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
-    llinventoryview.h
+    llinventorypanel.h
     lljoystickbutton.h
     lllandmarklist.h
     lllightconstants.h
@@ -841,6 +854,7 @@ set(viewer_HEADER_FILES
     llpanellandoptions.h
     llpanelLCD.h
     llpanellogin.h
+    llpanelmaininventory.h
     llpanelmorph.h
     llpanelmediahud.h
     llpanelmsgs.h
@@ -935,7 +949,6 @@ set(viewer_HEADER_FILES
     llviewerassetstorage.h
     llviewerassettype.h
     llvieweraudio.h
-    llviewerbuild.h
     llviewercamera.h
     llviewercontrol.h
     llviewerdisplay.h

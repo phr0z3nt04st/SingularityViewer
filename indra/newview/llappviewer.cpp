@@ -37,7 +37,7 @@
 #include "hippogridmanager.h"
 #include "hippolimits.h"
 
-#include "llversionviewer.h"
+#include "sgversion.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
@@ -171,6 +171,7 @@
 #include "llvovolume.h"
 #include "llflexibleobject.h" 
 #include "llvosurfacepatch.h"
+#include "llfloaterinventory.h"
 
 // includes for idle() idleShutdown()
 #include "floaterao.h"
@@ -187,8 +188,6 @@
 #include "llimview.h"
 #include "llviewerthrottle.h"
 #include "llparcel.h"
-
-#include "llinventoryview.h"
 
 #include "llcommandlineparser.h"
 #include "llprogressview.h"
@@ -630,6 +629,8 @@ bool LLAppViewer::init()
 	initMaxHeapSize() ;
 
 	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled"), (U32)gSavedSettings.getU32("MemoryPrivatePoolSize")) ;
+
+    mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass(gSavedSettings.getBOOL("CurlUseMultipleThreads"));
@@ -642,11 +643,11 @@ bool LLAppViewer::init()
 
 	// Build a string representing the current version number.
     gCurrentVersion = llformat("%s %d.%d.%d.%d",
-        LL_CHANNEL,
-        LL_VERSION_MAJOR,
-        LL_VERSION_MINOR,
-        LL_VERSION_PATCH,
-        LL_VERSION_BUILD );
+        gVersionChannel,
+        gVersionMajor,
+        gVersionMinor,
+        gVersionPatch,
+        gVersionBuild );
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -1023,8 +1024,10 @@ static LLFastTimer::DeclareTimer FTM_PUMP_SERVICE("Service");
 static LLFastTimer::DeclareTimer FTM_SERVICE_CALLBACK("Callback");
 static LLFastTimer::DeclareTimer FTM_AGENT_AUTOPILOT("Autopilot");
 static LLFastTimer::DeclareTimer FTM_AGENT_UPDATE("Update");
+
 bool LLAppViewer::mainLoop()
 {
+	LLMemType mt1(LLMemType::MTYPE_MAIN);
 	mMainloopTimeout = new LLWatchdogTimeout();
 	// *FIX:Mani - Make this a setting, once new settings exist in this branch.
 	
@@ -1042,7 +1045,6 @@ bool LLAppViewer::mainLoop()
 	LLVoiceChannel::initClass();
 	LLVoiceClient::init(gServicePump);
 				
-	LLMemType mt1(LLMemType::MTYPE_MAIN);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 	LLFrameTimer memCheckTimer;
@@ -1115,6 +1117,7 @@ bool LLAppViewer::mainLoop()
 					&& !gViewerWindow->getShowProgress()
 					&& !gFocusMgr.focusLocked())
 				{
+					LLMemType mjk(LLMemType::MTYPE_JOY_KEY);
 					joystick->scanJoystick();
 					gKeyboard->scanKeyboard();
 					if(isCrouch)
@@ -1134,6 +1137,7 @@ bool LLAppViewer::mainLoop()
 
 					if (gAres != NULL && gAres->isInitialized())
 					{
+						LLMemType mt_ip(LLMemType::MTYPE_IDLE_PUMP);
 						pingMainloopTimeout("Main:ServicePump");				
 						LLFastTimer t4(FTM_PUMP);
 						{
@@ -1188,6 +1192,7 @@ bool LLAppViewer::mainLoop()
 
 			// Sleep and run background threads
 			{
+				LLMemType mt_sleep(LLMemType::MTYPE_SLEEP);
 				LLFastTimer t2(FTM_SLEEP);
 				static const LLCachedControl<bool> run_multiple_threads("RunMultipleThreads",false);
 
@@ -1208,6 +1213,9 @@ bool LLAppViewer::mainLoop()
 					// of equal priority on Windows
 					if (milliseconds_to_sleep > 0)
 					{
+						//Prevent sleeping too long while in the login process (tends to cause stalling)
+						if(LLStartUp::getStartupState() >= STATE_LOGIN_AUTH_INIT && LLStartUp::getStartupState() < STATE_STARTED)
+							milliseconds_to_sleep = llmin(milliseconds_to_sleep,250);
 						ms_sleep(milliseconds_to_sleep);
 						// also pause worker threads during this wait period
 						LLAppViewer::getTextureCache()->pause();
@@ -2037,7 +2045,7 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
+	gSavedSettings.setString("VersionChannelName", gVersionChannel);
 
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
@@ -2145,7 +2153,7 @@ bool LLAppViewer::initConfiguration()
 	if(clp.hasOption("disablecrashlogger"))
 	{
 		llwarns << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" <<llendl;
-		sDisableCrashlogger=TRUE;
+		LLAppViewer::instance()->disableCrashlogger();
 	}
 
 	// Handle initialization from settings.
@@ -2646,12 +2654,12 @@ void LLAppViewer::writeSystemInfo()
 {
 	gDebugInfo["SLLog"] = LLError::logFileName();
 
-	gDebugInfo["ClientInfo"]["Name"] = LL_CHANNEL;
+	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel;
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor;
+	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor;
+	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch;
+	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild;
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 
@@ -2686,7 +2694,7 @@ void LLAppViewer::writeSystemInfo()
 	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
-			<< " version " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH
+			<< " version " << gVersionMajor << "." << gVersionMinor << "." << gVersionPatch
 			<< LL_ENDL;
 
 	// Dump the local time and time zone
@@ -2731,7 +2739,7 @@ void LLAppViewer::handleViewerCrash()
 		abort();
 	}
 
-	if(pApp->sDisableCrashlogger==TRUE)
+	if (LLApp::isCrashloggerDisabled())
 	{
 		abort();
 	}
@@ -2750,12 +2758,12 @@ void LLAppViewer::handleViewerCrash()
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
 
-	gDebugInfo["ClientInfo"]["Name"] = LL_CHANNEL;
+	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel;
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor;
+	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor;
+	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch;
+	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild;
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])
@@ -3707,6 +3715,7 @@ static LLFastTimer::DeclareTimer FTM_VLMANAGER("VL Manager");
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
+	LLMemType mt_idle(LLMemType::MTYPE_IDLE);
 	pingMainloopTimeout("Main:Idle");
 	
 	// Update frame timers
@@ -4287,6 +4296,7 @@ static LLFastTimer::DeclareTimer FTM_DYNAMIC_THROTTLE("Dynamic Throttle");
 static LLFastTimer::DeclareTimer FTM_CHECK_REGION_CIRCUIT("Check Region Circuit");
 void LLAppViewer::idleNetwork()
 {
+	LLMemType mt_in(LLMemType::MTYPE_IDLE_NETWORK);
 	pingMainloopTimeout("idleNetwork");
 
 	gObjectList.mNumNewObjects = 0;
@@ -4597,12 +4607,12 @@ void LLAppViewer::handleLoginComplete()
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.
-	gDebugInfo["ClientInfo"]["Name"] = LL_CHANNEL;
+	gDebugInfo["ClientInfo"]["Name"] = gVersionChannel;
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = gVersionMajor;
+	gDebugInfo["ClientInfo"]["MinorVersion"] = gVersionMinor;
+	gDebugInfo["ClientInfo"]["PatchVersion"] = gVersionPatch;
+	gDebugInfo["ClientInfo"]["BuildVersion"] = gVersionBuild;
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])

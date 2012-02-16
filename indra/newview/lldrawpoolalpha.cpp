@@ -42,7 +42,6 @@
 
 #include "llcubemap.h"
 #include "llsky.h"
-#include "llagent.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
@@ -107,11 +106,12 @@ void LLDrawPoolAlpha::renderDeferred(S32 pass)
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
+	static const LLCachedControl<bool> render_depth_of_field("RenderDepthOfField");
 	if (LLPipeline::sImpostorRender)
 	{ //skip depth buffer filling pass when rendering impostors
 		return 1;
 	}
-	else if (gSavedSettings.getBOOL("RenderDepthOfField"))
+	else if (render_depth_of_field)
 	{
 		return 2; 
 	}
@@ -344,6 +344,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 		pushBatches(LLRenderPass::PASS_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
 		pushBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
+		pushBatches(LLRenderPass::PASS_ALPHA_INVISIBLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
 
 		if(shaders) 
 		{

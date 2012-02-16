@@ -34,7 +34,7 @@
 
 #include <utility> // for std::pair<>
 
-#include "llinventoryview.h"
+#include "llinventorypanel.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
@@ -60,6 +60,7 @@
 #include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
+#include "llfloaterinventory.h"
 #include "llfloaterproperties.h"
 
 #include "llfloaterworldmap.h"
@@ -2894,7 +2895,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			if (is_movable)
 			{
-				is_movable = (RlvFolderLocks::instance().hasLockedFolder(RLV_LOCK_ANY)) && (RlvFolderLocks::instance().canMoveItem(inv_item->getUUID(), mUUID));
+				is_movable = (!RlvFolderLocks::instance().hasLockedFolder(RLV_LOCK_ANY)) ||
+					(RlvFolderLocks::instance().canMoveItem(inv_item->getUUID(), mUUID));
 			}
  		}
  // [/RLVa:KB]
@@ -5250,7 +5252,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Wearable Wear"));
 		items.push_back(std::string("Wearable Edit"));
 // [RLVa:KB] - Checked: 2011-09-16 (RLVa-1.1.4a) | Added: RLVa-1.1.4a
-		if ( (rlv_handler_t::isEnabled()) && (!gRlvWearableLocks.canRemove(item)) )
+		if ( (rlv_handler_t::isEnabled()) && (gRlvWearableLocks.canRemove(item)) )
 		{
 			disabled_items.push_back(std::string("Wearable Wear"));
 			disabled_items.push_back(std::string("Wearable Edit"));
