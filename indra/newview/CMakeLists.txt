@@ -645,7 +645,6 @@ set(viewer_HEADER_FILES
     lldrawpoolalpha.h
     lldrawpoolavatar.h
     lldrawpoolbump.h
-    lldrawpoolclouds.h
     lldrawpoolground.h
     lldrawpoolsimple.h
     lldrawpoolsky.h
@@ -1351,12 +1350,16 @@ if (FMOD OR FMODEX)
   if (NOT WINDOWS)
     set(fmodwrapper_SOURCE_FILES fmodwrapper.cpp)
     add_library(fmodwrapper SHARED ${fmodwrapper_SOURCE_FILES})
-	if(FMODEX)
-		set(fmodwrapper_needed_LIBRARIES ${FMODEX_LIBRARY})
-	endif(FMODEX)
-	if(FMOD)
-		set(fmodwrapper_needed_LIBRARIES "${fmodwrapper_needed_LIBRARIES} ${FMOD_LIBRARY}")
-	endif(FMOD)
+    if(FMOD AND FMODEX)
+		set(fmodwrapper_needed_LIBRARIES "${FMODEX_LIBRARY} ${FMOD_LIBRARY}")
+    else(FMOD AND FMODEX)
+        if(FMODEX)
+            set(fmodwrapper_needed_LIBRARIES ${FMODEX_LIBRARY})
+        endif(FMODEX)
+        if(FMOD)
+            set(fmodwrapper_needed_LIBRARIES "${FMOD_LIBRARY}")
+        endif(FMOD)
+    endif(FMOD AND FMODEX)
     if (DARWIN)
       list(APPEND fmodwrapper_needed_LIBRARIES ${CARBON_LIBRARY})
       set_target_properties(
