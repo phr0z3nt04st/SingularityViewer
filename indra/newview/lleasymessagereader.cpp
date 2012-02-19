@@ -279,49 +279,56 @@ std::string LLEasyMessageReader::var2Str(const char* block_name, S32 block_num, 
 	returned_hex = FALSE;
 	std::stringstream stream;
 
-	char* value;
-	U32 valueU32;
-	U16 valueU16;
-	LLVector3 valueVector3;
-	LLVector3d valueVector3d;
-	LLVector4 valueVector4;
-	LLQuaternion valueQuaternion;
-	LLUUID valueLLUUID;
-
 	switch(var_type)
 	{
 	case MVT_U8:
-		U8 valueU8;
-		mTemplateMessageReader.getU8(block_name, var_name, valueU8, block_num);
-		stream << U32(valueU8);
+		{
+			U8 valueU8;
+			mTemplateMessageReader.getU8(block_name, var_name, valueU8, block_num);
+			stream << U32(valueU8);
+		}
 		break;
 	case MVT_U16:
-		mTemplateMessageReader.getU16(block_name, var_name, valueU16, block_num);
-		stream << valueU16;
+		{
+			U16 valueU16;
+			mTemplateMessageReader.getU16(block_name, var_name, valueU16, block_num);
+			stream << valueU16;
+		}
 		break;
 	case MVT_U32:
-		mTemplateMessageReader.getU32(block_name, var_name, valueU32, block_num);
-		stream << valueU32;
+		{
+			U32 valueU32;
+			mTemplateMessageReader.getU32(block_name, var_name, valueU32, block_num);
+			stream << valueU32;
+		}
 		break;
 	case MVT_U64:
-		U64 valueU64;
-		mTemplateMessageReader.getU64(block_name, var_name, valueU64, block_num);
-		stream << valueU64;
+		{
+			U64 valueU64;
+			mTemplateMessageReader.getU64(block_name, var_name, valueU64, block_num);
+			stream << valueU64;
+		}
 		break;
 	case MVT_S8:
-		S8 valueS8;
-		mTemplateMessageReader.getS8(block_name, var_name, valueS8, block_num);
-		stream << S32(valueS8);
+		{
+			S8 valueS8;
+			mTemplateMessageReader.getS8(block_name, var_name, valueS8, block_num);
+			stream << S32(valueS8);
+		}		
 		break;
 	case MVT_S16:
-		S16 valueS16;
-		mTemplateMessageReader.getS16(block_name, var_name, valueS16, block_num);
-		stream << valueS16;
+		{
+			S16 valueS16;
+			mTemplateMessageReader.getS16(block_name, var_name, valueS16, block_num);
+			stream << valueS16;
+		}
 		break;
 	case MVT_S32:
-		S32 valueS32;
-		mTemplateMessageReader.getS32(block_name, var_name, valueS32, block_num);
-		stream << valueS32;
+		{
+			S32 valueS32;
+			mTemplateMessageReader.getS32(block_name, var_name, valueS32, block_num);
+			stream << valueS32;
+		}
 		break;
 	/*case MVT_S64:
 		S64 valueS64;
@@ -329,107 +336,136 @@ std::string LLEasyMessageReader::var2Str(const char* block_name, S32 block_num, 
 		stream << valueS64;
 		break;*/
 	case MVT_F32:
-		F32 valueF32;
-		mTemplateMessageReader.getF32(block_name, var_name, valueF32, block_num);
-		stream << valueF32;
+		{
+			F32 valueF32;
+			mTemplateMessageReader.getF32(block_name, var_name, valueF32, block_num);
+			stream << valueF32;
+		}
 		break;
 	case MVT_F64:
-		F64 valueF64;
-		mTemplateMessageReader.getF64(block_name, var_name, valueF64, block_num);
-		stream << valueF64;
+		{
+			F64 valueF64;
+			mTemplateMessageReader.getF64(block_name, var_name, valueF64, block_num);
+			stream << valueF64;
+		}
 		break;
 	case MVT_LLVector3:
-		mTemplateMessageReader.getVector3(block_name, var_name, valueVector3, block_num);
-		//stream << valueVector3;
-		stream << "<" << valueVector3.mV[0] << ", " << valueVector3.mV[1] << ", " << valueVector3.mV[2] << ">";
+		{
+			LLVector3 valueVector3;
+			mTemplateMessageReader.getVector3(block_name, var_name, valueVector3, block_num);
+			//stream << valueVector3;
+			stream << "<" << valueVector3.mV[0] << ", " << valueVector3.mV[1] << ", " << valueVector3.mV[2] << ">";
+		}
 		break;
 	case MVT_LLVector3d:
-		mTemplateMessageReader.getVector3d(block_name, var_name, valueVector3d, block_num);
-		//stream << valueVector3d;
-		stream << "<" << valueVector3d.mdV[0] << ", " << valueVector3d.mdV[1] << ", " << valueVector3d.mdV[2] << ">";
+		{
+			LLVector3d valueVector3d;
+			mTemplateMessageReader.getVector3d(block_name, var_name, valueVector3d, block_num);
+			//stream << valueVector3d;
+			stream << "<" << valueVector3d.mdV[0] << ", " << valueVector3d.mdV[1] << ", " << valueVector3d.mdV[2] << ">";
+		}
 		break;
 	case MVT_LLVector4:
-		mTemplateMessageReader.getVector4(block_name, var_name, valueVector4, block_num);
-		//stream << valueVector4;
-		stream << "<" << valueVector4.mV[0] << ", " << valueVector4.mV[1] << ", " << valueVector4.mV[2] << ", " << valueVector4.mV[3] << ">";
+		{
+			LLVector4 valueVector4;
+			mTemplateMessageReader.getVector4(block_name, var_name, valueVector4, block_num);
+			//stream << valueVector4;
+			stream << "<" << valueVector4.mV[0] << ", " << valueVector4.mV[1] << ", " << valueVector4.mV[2] << ", " << valueVector4.mV[3] << ">";
+		}
 		break;
 	case MVT_LLQuaternion:
-		mTemplateMessageReader.getQuat(block_name, var_name, valueQuaternion, block_num);
-		//stream << valueQuaternion;
-		stream << "<" << valueQuaternion.mQ[0] << ", " << valueQuaternion.mQ[1] << ", " << valueQuaternion.mQ[2] << ", " << valueQuaternion.mQ[3] << ">";
+		{
+			LLQuaternion valueQuaternion;
+			mTemplateMessageReader.getQuat(block_name, var_name, valueQuaternion, block_num);
+			//stream << valueQuaternion;
+			stream << "<" << valueQuaternion.mQ[0] << ", " << valueQuaternion.mQ[1] << ", " << valueQuaternion.mQ[2] << ", " << valueQuaternion.mQ[3] << ">";
+		}
 		break;
 	case MVT_LLUUID:
-		mTemplateMessageReader.getUUID(block_name, var_name, valueLLUUID, block_num);
-		stream << valueLLUUID;
+		{
+			LLUUID valueLLUUID;
+			mTemplateMessageReader.getUUID(block_name, var_name, valueLLUUID, block_num);
+			stream << valueLLUUID;
+		}
 		break;
 	case MVT_BOOL:
-		BOOL valueBOOL;
-		mTemplateMessageReader.getBOOL(block_name, var_name, valueBOOL, block_num);
-		stream << valueBOOL;
+		{
+			BOOL valueBOOL;
+			mTemplateMessageReader.getBOOL(block_name, var_name, valueBOOL, block_num);
+			stream << valueBOOL;
+		}
 		break;
 	case MVT_IP_ADDR:
-		mTemplateMessageReader.getIPAddr(block_name, var_name, valueU32, block_num);
-		stream << LLHost(valueU32, 0).getIPString();
+		{
+			U32 valueU32;
+			mTemplateMessageReader.getIPAddr(block_name, var_name, valueU32, block_num);
+			stream << LLHost(valueU32, 0).getIPString();
+		}
 		break;
 	case MVT_IP_PORT:
-		mTemplateMessageReader.getIPPort(block_name, var_name, valueU16, block_num);
-		stream << valueU16;
+		{
+			U16 valueU16;
+			mTemplateMessageReader.getIPPort(block_name, var_name, valueU16, block_num);
+			stream << valueU16;
+		}
 	case MVT_VARIABLE:
 	case MVT_FIXED:
 	default:
-		S32 size = mTemplateMessageReader.getSize(block_name, block_num, var_name);
-		if(size)
 		{
-			value = new char[size + 1];
-			mTemplateMessageReader.getBinaryData(block_name, var_name, value, size, block_num);
-			value[size] = '\0';
-			S32 readable = 0;
-			S32 unreadable = 0;
-			S32 end = (summary_mode && (size > 64)) ? 64 : size;
-			for(S32 i = 0; i < end; i++)
+			S32 size = mTemplateMessageReader.getSize(block_name, block_num, var_name);
+			if(size)
 			{
-				if(!value[i])
-				{
-					if(i != (end - 1))
-					{ // don't want null terminator hiding data
-						unreadable = S32_MAX;
-						break;
-					}
-				}
-				else if(value[i] < 0x20 || value[i] >= 0x7F)
-				{
-					if(summary_mode)
-						unreadable++;
-					else
-					{ // never want any wrong characters outside of summary mode
-						unreadable = S32_MAX;
-						break;
-					}
-				}
-				else readable++;
-			}
-			if(readable >= unreadable)
-			{
-				if(summary_mode && (size > 64))
-				{
-					for(S32 i = 60; i < 63; i++)
-						value[i] = '.';
-					value[63] = '\0';
-				}
-				stream << value;
-			}
-			else
-			{
-				returned_hex = TRUE;
-				S32 end = (summary_mode && (size > 8)) ? 8 : size;
+				char* value = new char[size + 1];
+				mTemplateMessageReader.getBinaryData(block_name, var_name, value, size, block_num);
+				value[size] = '\0';
+				S32 readable = 0;
+				S32 unreadable = 0;
+				S32 end = (summary_mode && (size > 64)) ? 64 : size;
 				for(S32 i = 0; i < end; i++)
-					//stream << std::uppercase << std::hex << U32(value[i]) << " ";
-					stream << llformat("%02X ", (U8)value[i]);
-				if(summary_mode && (size > 8))
-					stream << " ... ";
+				{
+					if(!value[i])
+					{
+						if(i != (end - 1))
+						{ // don't want null terminator hiding data
+							unreadable = S32_MAX;
+							break;
+						}
+					}
+					else if(value[i] < 0x20 || value[i] >= 0x7F)
+					{
+						if(summary_mode)
+							unreadable++;
+						else
+						{ // never want any wrong characters outside of summary mode
+							unreadable = S32_MAX;
+							break;
+						}
+					}
+					else readable++;
+				}
+				if(readable >= unreadable)
+				{
+					if(summary_mode && (size > 64))
+					{
+						for(S32 i = 60; i < 63; i++)
+							value[i] = '.';
+						value[63] = '\0';
+					}
+					stream << value;
+				}
+				else
+				{
+					returned_hex = TRUE;
+					S32 end = (summary_mode && (size > 8)) ? 8 : size;
+					for(S32 i = 0; i < end; i++)
+						//stream << std::uppercase << std::hex << U32(value[i]) << " ";
+						stream << llformat("%02X ", (U8)value[i]);
+					if(summary_mode && (size > 8))
+						stream << " ... ";
+				}
+	
+				delete[] value;
 			}
-
-			delete[] value;
 		}
 		break;
 	}
