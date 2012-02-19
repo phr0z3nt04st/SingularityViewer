@@ -86,7 +86,7 @@ void LLMessageLog::log(LLHost from_host, LLHost to_host, U8* data, S32 data_size
 	if(!sCallback) return;
 
 	LogPayload payload = new LLMessageLogEntry(LLMessageLogEntry::TEMPLATE, from_host, to_host, data, data_size);
-	if(!payload->mDataSize)
+	if(!payload->mDataSize || !payload->mData)
 	{
 		delete payload; //delete the payload from memory
 		return;
@@ -102,7 +102,11 @@ void LLMessageLog::logHTTPRequest(const std::string& url, LLURLRequest::ERequest
 
 	LogPayload payload = new LLMessageLogEntry(LLMessageLogEntry::HTTP_REQUEST, url, channels, buffer,
 	                                         headers, request_id, method);
-
+	if(!payload->mDataSize || !payload->mData)
+	{
+		delete payload; //delete the payload from memory
+		return;
+	}
 	sCallback(payload);
 }
 

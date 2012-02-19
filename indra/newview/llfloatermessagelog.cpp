@@ -28,11 +28,9 @@ LLNetListItem::LLNetListItem(LLUUID id)
 {
 }
 
-//TODO: replace all filtering code, esp start/stopApplyingFilter
-
 LLMessageLogFilter::LLMessageLogFilter()
-				{
-		}
+{
+}
 LLMessageLogFilter::LLMessageLogFilter(std::string filter)
 {
 	set(filter);
@@ -89,9 +87,6 @@ BOOL LLMessageLogFilterApply::tick()
 	//we shouldn't even exist anymore, bail out
 	if(mFinished)
 		return TRUE;
-
-	LLMutexLock lock(LLFloaterMessageLog::sMessageListMutex);
-
 	LogPayloadList::iterator end = mParent->sMessageLogEntries.end();
 	for(S32 i = 0; i < 256; i++)
 	{
@@ -148,9 +143,6 @@ LLFloaterMessageLog* LLFloaterMessageLog::sInstance;
 std::list<LLNetListItem*> LLFloaterMessageLog::sNetListItems;
 LogPayloadList LLFloaterMessageLog::sMessageLogEntries;
 LLMessageLogNetMan* LLFloaterMessageLog::sNetListTimer = NULL;
-LLMutex* LLFloaterMessageLog::sNetListMutex = NULL;
-LLMutex* LLFloaterMessageLog::sMessageListMutex = NULL;
-
 LLFloaterMessageLog::LLFloaterMessageLog()
     : LLFloater("message_log"),
       mInfoPaneMode(IPANE_NET),
@@ -160,11 +152,6 @@ LLFloaterMessageLog::LLFloaterMessageLog()
       mMessageLogFilter("!StartPingCheck !CompletePingCheck !PacketAck !SimulatorViewerTimeMessage !SimStats !AgentUpdate !AgentAnimation !AvatarAnimation !ViewerEffect !CoarseLocationUpdate !LayerData !CameraConstraint !ObjectUpdateCached !RequestMultipleObjects !ObjectUpdate !ObjectUpdateCompressed !ImprovedTerseObjectUpdate !KillObject !ImagePacket !SendXferPacket !ConfirmXferPacket !TransferPacket !SoundTrigger !AttachedSound !PreloadSound"),
       mEasyMessageReader(new LLEasyMessageReader())
 {
-	if(!sNetListMutex)
-		sNetListMutex = new LLMutex();
-	if(!sMessageListMutex)
-		sMessageListMutex = new LLMutex();
-
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_message_log.xml");
 }
 LLFloaterMessageLog::~LLFloaterMessageLog()
@@ -183,17 +170,7 @@ LLFloaterMessageLog::~LLFloaterMessageLog()
 
 		sNetListTimer->cancel();
 		sNetListTimer = NULL;
-
-		sNetListMutex->lock();
-		sNetListItems.clear();
-		sNetListMutex->unlock();
-
 		clearMessageLogEntries();
-
-		delete sNetListMutex;
-		delete sMessageListMutex;
-		sNetListMutex = NULL;
-		sMessageListMutex = NULL;
 	}
 }
 // static
@@ -253,14 +230,13 @@ void LLFloaterMessageLog::clearFloaterMessageItems(bool dying)
 
 void LLFloaterMessageLog::clearMessageLogEntries()
 {
-	LLMutexLock lock(sMessageListMutex);
 	//make sure to delete the objects referenced by these pointers first
 	LogPayloadList::iterator iter = sMessageLogEntries.begin();
 	LogPayloadList::const_iterator end = sMessageLogEntries.end();
 	for (;iter != end; ++iter)
     {
        delete *iter;
-}
+	}
 
 	sMessageLogEntries.clear();
 }
@@ -270,8 +246,6 @@ void LLFloaterMessageLog::updateGlobalNetList(bool starting)
 {
 	//something tells me things aren't deallocated properly here, but
 	//valgrind isn't complaining
-
-	LLMutexLock lock(sNetListMutex);
 
 	// Update circuit data of net list items
 	std::vector<LLCircuitData*> circuits = gMessageSystem->getCircuit()->getCircuitDataList();
@@ -476,7 +450,6 @@ void LLFloaterMessageLog::onLog(LogPayload entry)
 
 	if(entry->mType != LLMessageLogEntry::HTTP_RESPONSE)
 	{
-		sMessageListMutex->lock();
 		while(!sInstance->mMessageLogFilterApply && sMessageLogEntries.size() > 4096)
 		{
 			//delete the raw message we're getting rid of
@@ -487,8 +460,6 @@ void LLFloaterMessageLog::onLog(LogPayload entry)
 		++sInstance->mMessagesLogged;
 
 		sMessageLogEntries.push_back(entry);
-
-		sMessageListMutex->unlock();
 
 		sInstance->conditionalLog(entry);
 	}
@@ -787,7 +758,7 @@ void LLFloaterMessageLog::stopApplyingFilter(bool quitting)
 {
 	if(mMessageLogFilterApply)
 	{
-		mMessageLogFilterApply->cancel();
+		mMessageLogFilterApply->cancel(); //This sets mFinished to TRUE so the timer will cleanup.
 
 		if(!quitting)
 		{
@@ -796,7 +767,7 @@ void LLFloaterMessageLog::stopApplyingFilter(bool quitting)
 		}
 	}
 
-	mMessageLogFilterApply = NULL;
+	mMessageLogFilterApply = NULL; //Since we know the timer will cleanup set to NULL to forget about it.
 }
 void LLFloaterMessageLog::updateFilterStatus()
 {

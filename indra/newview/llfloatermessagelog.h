@@ -151,9 +151,6 @@ public:
 	static LogPayloadList sMessageLogEntries;
 	FloaterMessageList mFloaterMessageLogItems;
 
-	static LLMutex* sNetListMutex;
-	static LLMutex* sMessageListMutex;
-
 protected:
 	HTTPConvoMap mIncompleteHTTPConvos;
 
