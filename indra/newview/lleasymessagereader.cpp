@@ -35,7 +35,7 @@ LLEasyMessageLogEntry::LLEasyMessageLogEntry(LogPayload entry, LLEasyMessageRead
 	else if(mType == HTTP_REQUEST)// not template
 	{
 		std::string base_url = get_base_url(mURL);
-
+		
 		if(LLWorld::getInstance()->isCapURLMapped(base_url))
 		{
 			mNames = LLWorld::getInstance()->getCapURLNames(base_url);

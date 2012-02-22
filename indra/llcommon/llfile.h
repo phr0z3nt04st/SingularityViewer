@@ -41,9 +41,9 @@
  * Attempts to mostly mirror the POSIX style IO functions.
  */
 
-typedef FILE	LLFILE;
-
 #include <fstream>
+
+typedef FILE	LLFILE;
 
 #ifdef LL_WINDOWS
 #define	USE_LLFILESTREAMS	1
@@ -194,11 +194,11 @@ public:
 	{
 	}
 
-	explicit llifstream(const std::string& _Filename, std::_Ios_Openmode _Mode = in)
+	explicit llifstream(const std::string& _Filename, std::ios::openmode _Mode = in)
 		: std::ifstream(_Filename.c_str(), _Mode)
 	{
 	}
-	void open(const std::string& _Filename, std::_Ios_Openmode _Mode = in)	/* Flawfinder: ignore */
+	void open(const std::string& _Filename, std::ios::openmode _Mode = in)	/* Flawfinder: ignore */
 	{
 		std::ifstream::open(_Filename.c_str(), _Mode);
 	}
@@ -212,12 +212,12 @@ public:
 	{
 	}
 
-	explicit llofstream(const std::string& _Filename, std::_Ios_Openmode _Mode = out)
+	explicit llofstream(const std::string& _Filename, std::ios::openmode _Mode = out)
 		: std::ofstream(_Filename.c_str(), _Mode)
 	{
 	}
 
-	void open(const std::string& _Filename, std::_Ios_Openmode _Mode = out)	/* Flawfinder: ignore */
+	void open(const std::string& _Filename, std::ios::openmode _Mode = out)	/* Flawfinder: ignore */
 	{
 		std::ofstream::open(_Filename.c_str(), _Mode);
 	}
