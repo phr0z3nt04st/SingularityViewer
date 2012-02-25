@@ -117,7 +117,8 @@ LLScrollListIcon::LLScrollListIcon(LLUIImagePtr icon, S32 width)
 
 LLScrollListIcon::LLScrollListIcon(const LLSD& value, S32 width)
 	: LLScrollListCell(width),
-	mColor(LLColor4::white)
+	mColor(LLColor4::white),
+	mCallback(NULL)
 {
 	setValue(value);
 }
