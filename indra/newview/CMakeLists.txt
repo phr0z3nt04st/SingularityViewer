@@ -19,7 +19,7 @@ endif(NOT FMODEX)
 include(OPENAL)
 include(HUNSPELL)
 include(FindOpenGL)
-include(JsonCpp)
+#include(JsonCpp)
 include(LLAddBuildTest)
 include(LLAudio)
 include(LLCharacter)
@@ -76,6 +76,7 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
+    sgmemstat.cpp
     sgversion.cpp
     llviewerobjectbackup.cpp
     slfloatermediafilter.cpp
@@ -134,6 +135,7 @@ set(viewer_SOURCE_FILES
     llbuildnewviewsscheduler.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
+    llcapabilitylistener.cpp
     llcaphttpsender.cpp
     llchatbar.cpp
     llclassifiedinfo.cpp
@@ -442,7 +444,6 @@ set(viewer_SOURCE_FILES
     lltoolselectrect.cpp
     lltoolview.cpp
     lltracker.cpp
-    lltranslate.cpp
     lluploaddialog.cpp
     lluploadfloaterobservers.cpp
     llurl.cpp
@@ -493,6 +494,7 @@ set(viewer_SOURCE_FILES
     llviewerregion.cpp
     llviewershadermgr.cpp
     llviewerstats.cpp
+    llviewerstatsrecorder.cpp
     llviewertexteditor.cpp
     llviewertexture.cpp
     llviewertextureanim.cpp
@@ -564,6 +566,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
 
+    sgmemstat.h
     sgversion.h
     llviewerobjectbackup.h
     slfloatermediafilter.h
@@ -621,6 +624,7 @@ set(viewer_HEADER_FILES
     llbuildnewviewsscheduler.h
     llcallbacklist.h
     llcallingcard.h
+    llcapabilitylistener.h
     llcaphttpsender.h
     llchatbar.h
     llclassifiedinfo.h
@@ -984,6 +988,7 @@ set(viewer_HEADER_FILES
     llviewerregion.h
     llviewershadermgr.h
     llviewerstats.h
+    llviewerstatsrecorder.h
     llviewertexteditor.h
     llviewertexture.h
     llviewertextureanim.h

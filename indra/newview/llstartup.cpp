@@ -2038,7 +2038,7 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
-		/*LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
 		if (regionp->capabilitiesReceived())
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
@@ -2056,7 +2056,7 @@ bool idle_startup()
 			{
 				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
 			}
-		}*/
+		}
 		return FALSE;
 	}
 
@@ -3492,7 +3492,7 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -bundleid \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += LL_VERSION_BUNDLE_ID;
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += gVersionBundleID;
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
 
 	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
